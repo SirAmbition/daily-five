@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daily Five</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Daily Five">
+<meta name="theme-color" content="#f4f6f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10151c" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f4f6f9;--card:#ffffff;--fg:#16202e;--mu:#8a94a3;--mu2:#5b6574;--line:#e1e6ee;--acc:#4a7bd0;--on:#ffffff;--ok:#3f9a6b;--warn:#c0612b;
+  --l0:#e1e6ee;--l1:#c9d7ee;--l2:#a3bde6;--l3:#7aa0dc;--l4:#4a7bd0;--l5:#2f5fb3;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--bg:#10151c;--card:#171e27;--fg:#e7ecf3;--mu:#7c8797;--mu2:#a6b0be;--line:#26303c;--acc:#6f9be6;--on:#0f141b;--ok:#5fbf8c;--warn:#e38a55;
+  --l0:#222b37;--l1:#243a5c;--l2:#2f5189;--l3:#4570b8;--l4:#6f9be6;--l5:#a9c5f3;}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--bg:#10151c;--card:#171e27;--fg:#e7ecf3;--mu:#7c8797;--mu2:#a6b0be;--line:#26303c;--acc:#6f9be6;--on:#0f141b;--ok:#5fbf8c;--warn:#e38a55;
+  --l0:#222b37;--l1:#243a5c;--l2:#2f5189;--l3:#4570b8;--l4:#6f9be6;--l5:#a9c5f3;}
+html,body{background:var(--bg)}
+body{color:var(--fg);font-family:var(--serif);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.wrap{max-width:520px;margin:0 auto;padding-inline:20px;padding-block:calc(22px + env(safe-area-inset-top,0px)) calc(170px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:30px}
+.eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--mu)}
+.num{font-variant-numeric:tabular-nums lining-nums}
+
+header{display:flex;flex-direction:column;gap:10px}
+.edit{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:var(--sans);font-size:13px;color:var(--acc);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px 12px}
+.edit button{font-weight:500;text-decoration:underline;text-underline-offset:3px}
+.streak{display:flex;align-items:baseline;gap:10px;margin-top:4px}
+.big{font-size:76px;line-height:.85;font-weight:400;letter-spacing:-.02em}
+.unit{font-size:18px;color:var(--mu2)}
+.snote{font-family:var(--sans);font-size:13px;color:var(--mu2)}
+.bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--acc);border-radius:2px;transition:width .35s ease}
+
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-block:1px solid var(--line)}
+.stat{padding:14px 0;display:flex;flex-direction:column;gap:4px}
+.stat+.stat{padding-left:14px;border-left:1px solid var(--line)}
+.stat b{font-weight:400;font-size:24px;line-height:1.1}
+
+.sec{display:flex;flex-direction:column;gap:6px}
+.sechead{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+ul.tasks{list-style:none;margin:0;padding:0}
+.task{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;padding:14px 0;border-bottom:1px solid var(--line)}
+.box{flex:none;width:22px;height:22px;margin-top:2px;border:1.5px solid var(--l2);border-radius:3px;display:grid;place-items:center;transition:background .15s,border-color .15s}
+.box svg{width:14px;height:14px;opacity:0}
+.task.done .box{background:var(--acc);border-color:var(--acc)}
+.task.done .box svg{opacity:1}
+.tbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.tname{font-size:19px;line-height:1.25}
+.task.done .tname{color:var(--mu);text-decoration:line-through;text-decoration-thickness:1px}
+.thint{font-family:var(--sans);font-size:13px;color:var(--mu2)}
+.mini{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:5px;max-width:220px}
+.mini i{display:block;height:100%;background:var(--l3)}
+.task.auto{cursor:default}
+
+.note{display:flex;flex-direction:column;gap:6px}
+.note input{font-family:var(--serif);font-size:17px;color:var(--fg);background:transparent;border:0;border-bottom:1px solid var(--line);padding:8px 0;border-radius:0;width:100%;outline:none}
+.note input:focus{border-bottom-color:var(--acc)}
+.note input::placeholder{color:var(--mu);font-style:italic}
+
+.years{display:flex;gap:14px;font-family:var(--sans);font-size:13px}
+.years button{color:var(--mu);padding:4px 0}
+.years button[aria-pressed="true"]{color:var(--fg);font-weight:500;box-shadow:inset 0 -1.5px 0 var(--fg)}
+.calwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 2px 6px;margin-top:6px}
+.cal{display:grid;gap:4px;align-items:center}
+.cal .ml{font-family:var(--sans);font-size:11px;color:var(--mu);white-space:nowrap;align-self:end;padding-bottom:2px}
+.cal .dl{font-family:var(--sans);font-size:10px;color:var(--mu);line-height:1}
+.cell{aspect-ratio:1;width:100%;border-radius:3px;background:var(--l0);display:block}
+.cell.fut{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.cell.pre{visibility:hidden}
+.cell.today{box-shadow:inset 0 0 0 1.5px var(--fg)}
+.cell.sel{outline:2px solid var(--acc);outline-offset:1px}
+button.cell:active{transform:scale(.9)}
+.legend{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-family:var(--sans);font-size:12px;color:var(--mu);margin-top:8px}
+.sw{display:flex;align-items:center;gap:4px}
+.sw span{width:11px;height:11px;border-radius:2px}
+.linkbtn{font-family:var(--sans);font-size:13px;color:var(--acc);text-decoration:underline;text-underline-offset:3px;align-self:flex-start;margin-top:10px}
+
+.review{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.review h2{font-size:28px;font-weight:400;margin:0;line-height:1.1;text-wrap:balance}
+.rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}
+.rgrid div{display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--line);padding-top:8px}
+.rgrid b{font-weight:400;font-size:22px}
+.rhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.close{font-family:var(--sans);font-size:13px;color:var(--mu2);text-decoration:underline;text-underline-offset:3px}
+
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sync{display:flex;align-items:center;gap:6px;font-family:var(--sans);font-size:12px;color:var(--mu);white-space:nowrap}
+.sync i{width:7px;height:7px;border-radius:50%;background:var(--mu);flex:none}
+.sync[data-state="saved"] i{background:var(--ok)}
+.sync[data-state="saving"] i{background:var(--acc);animation:pulse 1s ease-in-out infinite}
+.sync[data-state="error"]{color:var(--warn)}
+.sync[data-state="error"] i{background:var(--warn)}
+@keyframes pulse{50%{opacity:.3}}
+.bhint{font-family:var(--sans);font-size:13px;line-height:1.5;color:var(--mu2);margin:2px 0 8px;max-width:60ch}
+.brow{display:flex;gap:8px;flex-wrap:wrap}
+.bbtn{font-family:var(--sans);font-size:14px;height:40px;padding:0 14px;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+.bbtn:active{background:var(--l1)}
+.bbtn.primary{background:var(--acc);border-color:var(--acc);color:var(--on)}
+.bconfirm{display:flex;flex-direction:column;gap:10px;font-family:var(--sans);font-size:14px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:10px}
+.bmsg{font-family:var(--sans);font-size:13px;color:var(--mu2);margin:8px 0 0;min-height:1em}
+.bmsg.err{color:var(--warn)}
+.hrow{display:flex;align-items:center;gap:16px;margin-top:6px}
+.hrow img{width:72px;height:72px;border-radius:16px;border:1px solid var(--line);-webkit-touch-callout:default}
+.steps{font-family:var(--sans);font-size:13px;line-height:1.55;color:var(--mu2);margin:4px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px;max-width:60ch}
+.dock{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px));z-index:5}
+.dockin{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.dfor{font-family:var(--sans);font-size:12px;color:var(--acc);text-align:center}
+.ctr{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ctrl{display:flex;flex-direction:column;min-width:0}
+.ctrl .n{font-family:var(--sans);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--mu)}
+.ctrl .v{font-size:17px;white-space:nowrap}
+.btns{display:flex;gap:6px;flex:none}
+.btns button{font-family:var(--sans);font-size:14px;font-variant-numeric:tabular-nums;height:40px;min-width:48px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);transition:background .12s}
+.btns button:active{background:var(--l1)}
+.btns .undo{min-width:40px;padding:0;color:var(--mu2);display:grid;place-items:center}
+.btns .undo svg{width:17px;height:17px}
+@media (max-width:360px){.btns button{min-width:42px;padding:0 7px;font-size:13px}.big{font-size:64px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-size:14px;min-height:100%}
+[hidden]{display:none!important}
+.install{display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.install .eyebrow{color:var(--acc)}
+.sync{padding:4px 0}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="toprow"><div class="eyebrow num" id="dateLine">Today</div><button type="button" class="sync" id="sync" data-state="local"><i></i><span id="syncText">No backup yet</span></button></div>
+    <div class="edit" id="editBar" hidden><span id="editText">Editing a past day</span><button id="backToday" type="button">Back to today</button></div>
+    <div class="streak"><span class="big num" id="streakNum">0</span><span class="unit" id="streakUnit">day streak</span></div>
+    <div class="snote" id="streakNote">Finish all 5 today to start your streak.</div>
+    <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+  </header>
+
+
+  <section class="install" id="install" hidden>
+    <span class="eyebrow">Add Daily Five to your home screen</span>
+    <ol class="steps">
+      <li>Tap the Share button at the bottom of Safari.</li>
+      <li>Scroll down and tap Add to Home Screen, then Add.</li>
+      <li>Open Daily Five from its new icon from now on. It keeps its own data, separate from this Safari tab.</li>
+    </ol>
+  </section>
+
+  <section class="review" id="review" hidden aria-live="polite"></section>
+
+  <div class="stats">
+    <div class="stat"><span class="eyebrow">Left today</span><b class="num" id="left">–</b></div>
+    <div class="stat"><span class="eyebrow">This week</span><b class="num" id="week">0%</b></div>
+    <div class="stat"><span class="eyebrow">Best streak</span><b class="num" id="best">0</b></div>
+  </div>
+
+  <section class="sec">
+    <div class="sechead"><span class="eyebrow" id="taskHead">Today</span><span class="eyebrow num" id="taskCount">0 / 5</span></div>
+    <ul class="tasks" id="tasks"></ul>
+  </section>
+
+  <label class="note">
+    <span class="eyebrow">Note</span>
+    <input id="note" type="text" maxlength="200" placeholder="How did today go?" autocomplete="off">
+  </label>
+
+  <section class="sec">
+    <div class="sechead"><span class="eyebrow">Calendar</span><div class="years" id="years"></div></div>
+    <div class="calwrap" id="calwrap"><div class="cal" id="cal"></div></div>
+    <div class="legend">
+      <div class="sw"><span style="margin-right:2px;width:auto;height:auto">Less</span><span style="background:var(--l0)"></span><span style="background:var(--l1)"></span><span style="background:var(--l2)"></span><span style="background:var(--l3)"></span><span style="background:var(--l4)"></span><span style="background:var(--l5)"></span><span style="margin-left:2px;width:auto;height:auto">5 of 5</span></div>
+      <span>Tap a past day to edit it</span>
+    </div>
+    <button class="linkbtn" id="reviewBtn" type="button">2026 so far</button>
+  </section>
+
+  <section class="sec backup">
+    <span class="eyebrow">Backup</span>
+    <p class="bhint">Your days are stored inside this app on your phone. Export a backup every week or so: tap Export backup, choose Save to Files, then iCloud Drive. Import reads that file back in, for example on a new phone.</p>
+    <div class="brow">
+      <button type="button" class="bbtn" id="exportBtn">Export backup</button>
+      <button type="button" class="bbtn" id="importBtn">Import backup</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div>
+    <div class="bconfirm" id="importConfirm" hidden>
+      <span id="importText"></span>
+      <div class="brow"><button type="button" class="bbtn primary" id="importYes">Import</button><button type="button" class="bbtn" id="importNo">Cancel</button></div>
+    </div>
+    <p class="bmsg" id="backupMsg" role="status"></p>
+  </section>
+</div>
+
+<div class="dock">
+  <div class="dockin">
+    <div class="dfor" id="dockFor" hidden></div>
+    <div class="ctr">
+      <div class="ctrl"><span class="n">Protein</span><span class="v num" id="pv">0 / 150 g</span></div>
+      <div class="btns">
+        <button type="button" data-add="protein" data-v="5">+5g</button>
+        <button type="button" data-add="protein" data-v="10">+10g</button>
+        <button type="button" data-add="protein" data-v="30">+30g</button>
+        <button type="button" class="undo" data-undo="protein" aria-label="Undo last protein entry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+      </div>
+    </div>
+    <div class="ctr">
+      <div class="ctrl"><span class="n">Water</span><span class="v num" id="wv">0 / 3 L</span></div>
+      <div class="btns">
+        <button type="button" data-add="water" data-v="250">+250</button>
+        <button type="button" data-add="water" data-v="500">+500</button>
+        <button type="button" data-add="water" data-v="1000">+1L</button>
+        <button type="button" class="undo" data-undo="water" aria-label="Undo last water entry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const START = new Date(2026, 8, 28);
+const FIRST_YEAR = 2026;
+const TASKS = [
+  {id:"creatine", name:"Creatine", hint:"5 g with water, any time of day"},
+  {id:"walk", name:"30 min incline walk", hint:"Treadmill on an incline, steady pace"},
+  {id:"protein", name:"150 g protein", goal:150},
+  {id:"water", name:"3 L water", goal:3000},
+  {id:"sleep", name:"7+ hours sleep", hint:"Tick when you wake up after a full night"}
+];
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, "0");
+const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = k => { const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d); };
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate()+n);
+const sum = a => (a || []).reduce((x, y) => x + y, 0);
+const litres = ml => { const s = (ml/1000).toFixed(2).replace(/0+$/, "").replace(/\.$/, ""); return s || "0"; };
+const fmtDay = d => d.toLocaleDateString("en-US", {weekday:"short", month:"short", day:"numeric"});
+const fmtShort = d => d.toLocaleDateString("en-US", {month:"short", day:"numeric"});
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="var(--on)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+
+let days = {};
+let todayK = key(new Date());
+let viewK = todayK;
+let selYear = new Date().getFullYear();
+let reviewYear = null;
+
+function day(k){ return days[k] || {c:{}, water:[], protein:[], note:""}; }
+function done(k, id){
+  const d = day(k);
+  if (id === "protein") return sum(d.protein) >= 150;
+  if (id === "water") return sum(d.water) >= 3000;
+  return !!(d.c && d.c[id]);
+}
+function count(k){ return TASKS.filter(t => done(k, t.id)).length; }
+
+/* storage: kept inside the app on this phone; backups go to iCloud Drive */
+const LS = "daily-five.days", LB = "daily-five.lastBackup";
+function loadLocal(){ try { const s = localStorage.getItem(LS); if (s) days = JSON.parse(s) || {}; } catch(e){} }
+function saveLocal(){ try { localStorage.setItem(LS, JSON.stringify(days)); } catch(e){} }
+function edit(k, fn){
+  const d = JSON.parse(JSON.stringify(day(k)));
+  d.c = d.c || {}; d.water = d.water || []; d.protein = d.protein || []; d.note = d.note || "";
+  fn(d); d.updated = Date.now();
+  days[k] = d; saveLocal(); render();
+}
+function lastBackup(){ try { return Number(localStorage.getItem(LB)) || 0; } catch(e){ return 0; } }
+function setSync(){
+  const t = lastBackup(); let s, txt;
+  if (!t) { s = "error"; txt = "No backup yet"; }
+  else {
+    const b = new Date(t), n = Math.round((today0() - new Date(b.getFullYear(), b.getMonth(), b.getDate())) / 864e5);
+    txt = n <= 0 ? "Backed up today" : n === 1 ? "Backed up yesterday" : `Backed up ${n} days ago`;
+    s = n > 7 ? "error" : "saved";
+  }
+  $("sync").dataset.state = s; $("syncText").textContent = txt;
+}
+/* backup: export to a file (iCloud Drive via Save to Files), import it back */
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+function cleanDay(v){
+  if (!v || typeof v !== "object") return null;
+  const nums = a => Array.isArray(a) ? a.filter(n => typeof n === "number" && isFinite(n) && n > 0 && n <= 5000).slice(0, 200) : [];
+  const c = {};
+  ["creatine","walk","sleep"].forEach(id => { if (v.c && v.c[id] === true) c[id] = true; });
+  return {c, water: nums(v.water), protein: nums(v.protein), note: typeof v.note === "string" ? v.note.slice(0, 200) : "", updated: Number(v.updated) || Date.now()};
+}
+function backupMsg(t, err){ const m = $("backupMsg"); m.textContent = t; m.classList.toggle("err", !!err); }
+$("exportBtn").addEventListener("click", async () => {
+  const payload = JSON.stringify({app:"daily-five", version:1, exported:new Date().toISOString(), days}, null, 1);
+  const filename = `daily-five-backup-${todayK}.json`;
+  const file = new File([payload], filename, {type:"application/json"});
+  const done = () => {
+    try { localStorage.setItem(LB, String(Date.now())); } catch(e){}
+    setSync(); backupMsg(`Backup saved: ${filename}`);
+  };
+  if (navigator.canShare && navigator.canShare({files:[file]})) {
+    try { await navigator.share({files:[file]}); done(); return; }
+    catch(e){ if (e && e.name === "AbortError") { backupMsg("Export cancelled."); return; } }
+  }
+  const url = URL.createObjectURL(file), link = document.createElement("a");
+  link.href = url; link.download = filename; document.body.appendChild(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  done();
+});
+let pending = null;
+$("importBtn").addEventListener("click", () => { $("importFile").value = ""; $("importFile").click(); });
+$("importFile").addEventListener("change", ev => {
+  const f = ev.target.files && ev.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const j = JSON.parse(r.result);
+      const src = j && j.days && typeof j.days === "object" ? j.days : null;
+      if (!src) throw 0;
+      const out = {};
+      Object.keys(src).forEach(k => { if (DAY_RE.test(k)) { const d = cleanDay(src[k]); if (d) out[k] = d; } });
+      const n = Object.keys(out).length;
+      if (!n) throw 0;
+      pending = out;
+      $("importText").textContent = `Import ${n} day${n === 1 ? "" : "s"} from ${f.name}? Days in the file replace the same days here. Other days stay as they are.`;
+      $("importConfirm").hidden = false; backupMsg("");
+    } catch(e){ pending = null; $("importConfirm").hidden = true; backupMsg("That file isn't a Daily Five backup. Choose a file named daily-five-backup.", true); }
+  };
+  r.onerror = () => backupMsg("That file couldn't be read. Try again.", true);
+  r.readAsText(f);
+});
+$("importNo").addEventListener("click", () => { pending = null; $("importConfirm").hidden = true; backupMsg("Import cancelled."); });
+$("importYes").addEventListener("click", () => {
+  if (!pending) return;
+  const keys = Object.keys(pending);
+  keys.forEach(k => { days[k] = pending[k]; });
+  pending = null; $("importConfirm").hidden = true;
+  saveLocal(); render();
+  backupMsg(`Imported ${keys.length} day${keys.length === 1 ? "" : "s"}.`);
+});
+
+/* stats */
+function today0(){ const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); }
+function streaks(){
+  const t = today0(); let run = 0, best = 0;
+  for (let d = new Date(START); d <= t; d = addDays(d, 1)) {
+    const k = key(d);
+    if (count(k) === 5) { run++; best = Math.max(best, run); }
+    else if (k !== todayK) run = 0;
+  }
+  return {cur: run, best};
+}
+function weekPct(){
+  const t = today0();
+  let s = addDays(t, -((t.getDay()+6)%7));
+  if (s < START) s = new Date(START);
+  let got = 0, n = 0;
+  for (let d = s; d <= t; d = addDays(d, 1)) { got += count(key(d)); n += 5; }
+  return n ? Math.round(got / n * 100) : 0;
+}
+function leftToday(){
+  const now = new Date(), mid = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
+  const m = Math.max(0, Math.floor((mid - now) / 60000));
+  return `${Math.floor(m/60)}h ${pad(m%60)}m`;
+}
+
+/* render */
+function render(){
+  setSync();
+  const k = viewK, isToday = k === todayK, d = day(k), n = count(k), vd = parse(k);
+  $("dateLine").textContent = `${fmtDay(vd)} · ${n} of 5 done`;
+  $("editBar").hidden = isToday;
+  $("editText").textContent = `Editing ${fmtDay(vd)}`;
+  const {cur, best} = streaks();
+  $("streakNum").textContent = cur;
+  const tn = count(todayK);
+  $("streakNote").textContent = tn === 5
+    ? "Today is complete. Streak counted."
+    : cur > 0 ? `Finish the last ${5 - tn} today to make it ${cur + 1}.`
+    : `Finish all 5 today to start your streak.`;
+  $("bar").style.width = (n / 5 * 100) + "%";
+  $("best").textContent = best;
+  $("week").textContent = weekPct() + "%";
+  $("left").textContent = leftToday();
+  $("taskHead").textContent = isToday ? "Today" : fmtDay(vd);
+  $("taskCount").textContent = `${n} / 5`;
+
+  const p = sum(d.protein), w = sum(d.water);
+  $("tasks").innerHTML = TASKS.map(t => {
+    const ok = done(k, t.id);
+    if (t.goal) {
+      const v = t.id === "protein" ? p : w;
+      const hint = t.id === "protein"
+        ? (ok ? `${p} g logged` : `${p} / 150 g · ${150 - p} g to go`)
+        : (ok ? `${litres(w)} L logged` : `${litres(w)} / 3 L · ${litres(3000 - w)} L to go`);
+      const pct = Math.min(100, Math.round(v / t.goal * 100));
+      return `<li><div class="task auto${ok ? " done" : ""}" role="checkbox" aria-checked="${ok}" aria-label="${t.name}"><span class="box">${CHECK}</span><span class="tbody"><span class="tname">${t.name}</span><span class="thint num">${hint} · add below</span><span class="mini"><i style="width:${pct}%"></i></span></span></div></li>`;
+    }
+    return `<li><button type="button" class="task${ok ? " done" : ""}" role="checkbox" aria-checked="${ok}" data-task="${t.id}"><span class="box">${CHECK}</span><span class="tbody"><span class="tname">${t.name}</span><span class="thint">${t.hint}</span></span></button></li>`;
+  }).join("");
+
+  const note = $("note");
+  if (document.activeElement !== note) note.value = d.note || "";
+  note.placeholder = isToday ? "How did today go?" : "Note for this day";
+
+  $("pv").textContent = `${p} / 150 g`;
+  $("wv").textContent = `${litres(w)} / 3 L`;
+  $("dockFor").hidden = isToday;
+  $("dockFor").textContent = `Adding to ${fmtDay(vd)}`;
+
+  renderCal();
+  if (reviewYear) renderReview(reviewYear);
+}
+
+function renderCal(){
+  const nowY = new Date().getFullYear();
+  const years = []; for (let y = FIRST_YEAR; y <= Math.max(FIRST_YEAR, nowY); y++) years.push(y);
+  $("years").innerHTML = years.length > 1 ? years.map(y => `<button type="button" data-year="${y}" aria-pressed="${y === selYear}">${y}</button>`).join("") : "";
+
+  const y = selYear;
+  const s = y === FIRST_YEAR ? new Date(START) : new Date(y, 0, 1);
+  const e = new Date(y, 11, 31);
+  const s0 = addDays(s, -((s.getDay()+6)%7));
+  const cols = Math.ceil((Math.round((e - s0) / 864e5) + 1) / 7);
+  const wide = cols > 18;
+  const cal = $("cal");
+  cal.style.gridTemplateColumns = wide ? `20px repeat(${cols}, 16px)` : `20px repeat(${cols}, minmax(0,1fr))`;
+  cal.style.width = wide ? "max-content" : "100%";
+  const t = today0();
+  let html = "";
+  ["M","","W","","F","","S"].forEach((l, r) => { html += `<span class="dl" style="grid-column:1;grid-row:${r+2}">${l}</span>`; });
+  let lastMonth = -1;
+  for (let c = 0; c < cols; c++) {
+    for (let r = 0; r < 7; r++) {
+      const d = addDays(s0, c*7 + r);
+      const pos = `grid-column:${c+2};grid-row:${r+2}`;
+      if (d < s || d > e) { html += `<span class="cell pre" style="${pos}"></span>`; continue; }
+      if (d.getMonth() !== lastMonth && (d.getDate() === 1 || d.getTime() === s.getTime())) {
+        lastMonth = d.getMonth();
+        html += `<span class="ml" style="grid-column:${c+2} / span 4;grid-row:1">${d.toLocaleDateString("en-US",{month:"short"})}</span>`;
+      }
+      const k = key(d);
+      if (d > t) { html += `<span class="cell fut" style="${pos}" aria-hidden="true"></span>`; continue; }
+      const n = count(k);
+      const cls = "cell" + (k === todayK ? " today" : "") + (k === viewK && k !== todayK ? " sel" : "");
+      html += `<button type="button" class="${cls}" style="${pos};background:var(--l${n})" data-day="${k}" aria-label="${fmtDay(d)}: ${n} of 5"></button>`;
+    }
+  }
+  cal.innerHTML = html;
+  $("reviewBtn").textContent = y < nowY ? `${y} in review` : `${y} so far`;
+  if (wide) {
+    const tc = cal.querySelector(".today, .sel");
+    if (tc && !renderCal.scrolled) { renderCal.scrolled = true; const w = $("calwrap"); w.scrollLeft = tc.offsetLeft - w.clientWidth / 2; }
+  }
+}
+
+function renderReview(y){
+  const s = y === FIRST_YEAR ? new Date(START) : new Date(y, 0, 1);
+  const e = new Date(Math.min(new Date(y, 11, 31), today0()));
+  let total = 0, perfect = 0, got = 0, run = 0, best = 0, water = 0, protein = 0;
+  const hits = {creatine:0, walk:0, protein:0, water:0, sleep:0};
+  for (let d = new Date(s); d <= e; d = addDays(d, 1)) {
+    const k = key(d), n = count(k), dd = day(k);
+    total++; got += n;
+    if (n === 5) { perfect++; run++; best = Math.max(best, run); } else if (k !== todayK) run = 0;
+    TASKS.forEach(t => { if (done(k, t.id)) hits[t.id]++; });
+    water += sum(dd.water); protein += sum(dd.protein);
+  }
+  const missed = TASKS.slice().sort((a, b) => hits[a.id] - hits[b.id])[0];
+  const over = y < new Date().getFullYear();
+  const cells = [
+    ["Perfect days", `${perfect} of ${total}`],
+    ["Completion", `${total ? Math.round(got / (total*5) * 100) : 0}%`],
+    ["Best streak", `${best} day${best === 1 ? "" : "s"}`],
+    ["Creatine", `${hits.creatine} days`],
+    ["Incline walks", `${hits.walk} · ${(hits.walk * 0.5).toFixed(1).replace(/\.0$/, "")} h`],
+    ["Water", `${Math.round(water / 1000)} L`],
+    ["Protein", `${(protein / 1000).toFixed(1)} kg`],
+    ["Most missed", total && hits[missed.id] < total ? missed.name : "None"]
+  ];
+  $("review").innerHTML = `<div class="rhead"><div><div class="eyebrow">${fmtShort(s)} to ${fmtShort(over ? new Date(y,11,31) : e)}</div><h2>${y} ${over ? "in review" : "so far"}</h2></div><button type="button" class="close" id="closeReview">Close</button></div><div class="rgrid">${cells.map(([l, v]) => `<div><span class="eyebrow">${l}</span><b class="num">${v}</b></div>`).join("")}</div>`;
+  $("review").hidden = false;
+}
+
+/* events */
+$("tasks").addEventListener("click", ev => {
+  const b = ev.target.closest("[data-task]"); if (!b) return;
+  const id = b.dataset.task;
+  edit(viewK, d => { d.c[id] = !d.c[id]; });
+});
+document.querySelector(".dock").addEventListener("click", ev => {
+  const a = ev.target.closest("[data-add]"), u = ev.target.closest("[data-undo]");
+  if (a) edit(viewK, d => { d[a.dataset.add].push(Number(a.dataset.v)); });
+  if (u) { const f = u.dataset.undo; if (day(viewK)[f] && day(viewK)[f].length) edit(viewK, d => { d[f].pop(); }); }
+});
+let noteTimer;
+$("note").addEventListener("input", ev => {
+  const v = ev.target.value, k = viewK;
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => edit(k, d => { d.note = v; }), 500);
+});
+$("cal").addEventListener("click", ev => {
+  const c = ev.target.closest("[data-day]"); if (!c) return;
+  viewK = c.dataset.day; render();
+  window.scrollTo({top: 0, behavior: "smooth"});
+});
+$("years").addEventListener("click", ev => {
+  const b = ev.target.closest("[data-year]"); if (!b) return;
+  selYear = Number(b.dataset.year); renderCal.scrolled = false; renderCal();
+});
+$("backToday").addEventListener("click", () => { viewK = todayK; selYear = parse(todayK).getFullYear(); render(); });
+$("reviewBtn").addEventListener("click", () => {
+  reviewYear = selYear; renderReview(selYear);
+  $("review").scrollIntoView({behavior: "smooth", block: "start"});
+});
+$("review").addEventListener("click", ev => {
+  if (ev.target.id !== "closeReview") return;
+  try { localStorage.setItem("daily-five.reviewed." + reviewYear, "1"); } catch(e){}
+  reviewYear = null; $("review").hidden = true;
+});
+
+function tick(){
+  const k = key(new Date());
+  if (k !== todayK) {
+    const wasToday = viewK === todayK;
+    todayK = k; if (wasToday) viewK = k;
+    selYear = parse(viewK).getFullYear();
+    render();
+  } else $("left").textContent = leftToday();
+}
+setInterval(tick, 20000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(); });
+
+/* year-end summary shows itself for the first two weeks of a new year */
+(function autoReview(){
+  const now = new Date(), prev = now.getFullYear() - 1;
+  if (prev < FIRST_YEAR || now.getMonth() !== 0 || now.getDate() > 14) return;
+  let seen = false; try { seen = localStorage.getItem("daily-five.reviewed." + prev) === "1"; } catch(e){}
+  if (!seen) reviewYear = prev;
+})();
+
+const standalone = navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;
+$("install").hidden = standalone;
+$("sync").addEventListener("click", () => document.querySelector(".backup").scrollIntoView({behavior: "smooth", block: "start"}));
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+
+loadLocal();
+render();
+</script>
+</body>
+</html>
